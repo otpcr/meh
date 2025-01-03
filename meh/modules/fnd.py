@@ -5,11 +5,42 @@
 "find"
 
 
+import os
+import pathlib
 import time
 
 
-from ..disk import long, skel, types
-from ..find import find, fntime, format, laps
+from ..object  import find, fntime
+from ..runtime import Config
+from ..utils   import format, laps
+
+
+p = os.path.join
+
+
+def skel():
+    stor = p(Config.wdr, "store", "")
+    path = pathlib.Path(stor)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def store():
+    return p(Config.wdr, "store")
+
+
+def types():
+    return os.listdir(store())
+
+
+def long(name):
+    split = name.split(".")[-1].lower()
+    res = name
+    for names in types():
+        if split == names.split(".")[-1].lower():
+            res = names
+            break
+    return res
 
 
 def fnd(event):

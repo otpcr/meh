@@ -16,10 +16,10 @@ import time
 import _thread
 
 
-from ..disk    import Cache, ident, write
+from ..disk    import Cache
 from ..disk    import Config as Main
 from ..find    import format, last
-from ..object  import Object, edit, keys
+from ..object  import Object, edit, ident, keys, write
 from ..runtime import Commands, Event, Reactor, command, later, launch, spl
 
 

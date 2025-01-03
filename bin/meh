@@ -55,7 +55,6 @@ class Console(CLI):
     def callback(self, evt):
         CLI.callback(self, evt)
         evt.wait()
-        print(evt)
         self.display(evt)
 
     def poll(self):
@@ -95,7 +94,6 @@ def console():
     if "v" in cfg.opts:
         banner()
     for mod, thr in scan(face, init="i" in cfg.opts, disable=cfg.sets.dis):
-        print(mod)
         if "v" in cfg.opts and "output" in dir(mod):
             mod.output = print
         if thr and "w" in cfg.opts:
@@ -146,6 +144,19 @@ def forever():
             time.sleep(0.1)
         except (KeyboardInterrupt, EOFError):
             _thread.interrupt_main()
+
+
+def pidfile(filename):
+    if os.path.exists(filename):
+        os.unlink(filename)
+    path2 = pathlib.Path(filename)
+    path2.parent.mkdir(parents=True, exist_ok=True)
+    with open(filename, "w", encoding="utf-8") as fds:
+        fds.write(str(os.getpid()))
+
+
+def pidname(name):
+    return p(Config.wdr, f"{name}.pid")
 
 
 def privileges():

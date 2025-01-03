@@ -135,7 +135,8 @@ class Default:
 
 class Config(Default):
 
-    pass
+    name = Default.__module__.split(".")[0].lower()
+    wdr = ""
 
 
 "errors"
