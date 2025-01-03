@@ -20,21 +20,23 @@ from ..runtime import Cache
 findlock = _thread.allocate_lock()
 
 
-def fns(pth):
+def fns(clz):
     dname = ''
+    pth = store(clz)
+    print(pth)
     with lock:
         for rootdir, dirs, _files in os.walk(pth, topdown=False):
             if dirs:
                 for dname in sorted(dirs):
                     if dname.count('-') == 2:
                         ddd = p(rootdir, dname)
-                        for fll in os.scandir(ddd):
+                        for fll in os.listdir(ddd):
                             yield p(ddd, fll)
 
 
 def find(clz, selector=None, index=None, deleted=False, matching=False):
     nrs = -1
-    pth = store(long(clz))
+    pth = long(clz)
     with findlock:
         for fnm in sorted(fns(pth), key=fntime):
             obj = Cache.get(fnm)
