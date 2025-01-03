@@ -14,6 +14,32 @@ import types
 import _thread
 
 
+"cache"
+
+
+class Cache:
+
+    objs = {}
+
+    @staticmethod
+    def add(path, obj):
+        with cachelock:
+            Cache.objs[path] = obj
+
+    @staticmethod
+    def get(path):
+        with cachelock:
+            return Cache.objs.get(path)
+
+    @staticmethod
+    def typed(matcher):
+        with cachelock:
+            for key in Cache.objs:
+                if matcher not in key:
+                    continue
+                yield Cache.objs.get(key)
+
+
 "commands"
 
 
@@ -231,6 +257,9 @@ class Client(Reactor):
         Reactor.__init__(self)
         self.register("command", command)
 
+    def raw(self):
+        raise NotImplementedError("raw")
+
 
 "threads"
 
@@ -398,6 +427,7 @@ def parse(obj, txt=None):
 
 def __dir__():
     return (
+        'Cache',
         'Client',
         'Commands',
         'Config',
