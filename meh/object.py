@@ -9,7 +9,6 @@ import datetime
 import json
 import os
 import pathlib
-import time
 import _thread
 
 
@@ -165,6 +164,10 @@ def fqn(obj):
     return kin
 
 
+def ident(obj):
+    return p(fqn(obj), *str(datetime.datetime.now()).split())
+
+
 def items(obj):
     if isinstance(obj,type({})):
         return obj.items()
@@ -196,73 +199,6 @@ def cdir(pth):
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-
-def fns(pth):
-    dname = ''
-    with lock:
-        for rootdir, dirs, _files in os.walk(pth, topdown=False):
-            if dirs:
-                for dname in sorted(dirs):
-                    if dname.count('-') == 2:
-                        ddd = p(rootdir, dname)
-                        for fll in os.scandir(ddd):
-                            yield strip(p(ddd, fll))
-
-
-def find(pth, selector=None, index=None, deleted=False, matching=False):
-    nrs = -1
-    with findlock:
-        for fnm in sorted(fns(pth), key=fntime):
-            obj = Cache.get(fnm)
-            if obj:
-                yield (fnm, obj)
-                continue
-            obj = Object()
-            read(obj, fnm)
-            if not deleted and '__deleted__' in dir(obj) and obj.__deleted__:
-                continue
-            if selector and not search(obj, selector, matching):
-                continue
-            nrs += 1
-            if index is not None and nrs != int(index):
-                continue
-            Cache.add(fnm, obj)
-            yield (fnm, obj)
-
-
-def fntime(daystr):
-    daystr = daystr.replace('_', ':')
-    datestr = ' '.join(daystr.split(os.sep)[-2:])
-    if '.' in datestr:
-        datestr, rest = datestr.rsplit('.', 1)
-    else:
-        rest = ''
-    timed = time.mktime(time.strptime(datestr, '%Y-%m-%d %H:%M:%S'))
-    if rest:
-        timed += float('.' + rest)
-    return timed
-
-
-
-def ident(obj):
-    return p(fqn(obj), *str(datetime.datetime.now()).split())
-
-
-def last(obj, selector=None):
-    if selector is None:
-        selector = {}
-    result = sorted(
-                    find(fqn(obj), selector),
-                    key=lambda x: fntime(x[0])
-                   )
-    res = None
-    if result:
-        inp = result[-1]
-        update(obj, inp[-1])
-        res = inp[0]
-    return res
-
-
 def read(obj, pth):
     with lock:
         with open(pth, 'r', encoding='utf-8') as ofile:
@@ -272,28 +208,6 @@ def read(obj, pth):
             except json.decoder.JSONDecodeError as ex:
                 raise Exception(pth) from ex
         return os.sep.join(pth.split(os.sep)[-3:])
-
-
-def search(obj, selector, matching=None):
-    res = False
-    if not selector:
-        return res
-    for key, value in items(selector):
-        val = getattr(obj, key, None)
-        if not val:
-            continue
-        if matching and value == val:
-            res = True
-        elif str(value).lower() in str(val).lower():
-            res = True
-        else:
-            res = False
-            break
-    return res
-
-
-def strip(pth, nmr=3):
-    return os.sep.join(pth.split(os.sep)[-nmr:])
 
 
 def write(obj, pth=None):
@@ -315,10 +229,8 @@ def __dir__():
         'Object',
         'construct',
         'edit',
-        'find',
         'fqn',
         'keys',
-        'last',
         'items',
         'values',
         'update'

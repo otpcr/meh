@@ -17,12 +17,14 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from meh.disk    import Config, skel
-from meh.find    import laps
 from meh.modules import face
 from meh.object  import Object
-from meh.runtime import Commands, Event, Reactor
+from meh.runtime import Client, Commands, Config, Event
 from meh.runtime import errors, later, launch, parse, scan
+
+
+from meh.modules.utils import laps
+from meh.modules.fnd   import skel
 
 
 Config.name = "tinder"
@@ -64,7 +66,7 @@ param.tdo = ["mekker", ""]
 param.ver = [""]
 
 
-class CLI(Reactor):
+class CLI(Client):
 
     def dosay(self, channel, txt):
         print(txt)
