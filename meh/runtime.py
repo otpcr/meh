@@ -14,6 +14,9 @@ import types
 import _thread
 
 
+cachelock = _thread.allocate_lock()
+
+
 "cache"
 
 
@@ -257,7 +260,7 @@ class Client(Reactor):
         Reactor.__init__(self)
         self.register("command", command)
 
-    def raw(self):
+    def raw(self, txt):
         raise NotImplementedError("raw")
 
 
