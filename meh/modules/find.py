@@ -23,7 +23,6 @@ findlock = _thread.allocate_lock()
 def fns(clz):
     dname = ''
     pth = store(clz)
-    print(pth)
     with lock:
         for rootdir, dirs, _files in os.walk(pth, topdown=False):
             if dirs:

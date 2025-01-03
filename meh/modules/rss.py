@@ -18,7 +18,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote_plus, urlencode
 
 
-from  .find    import find, fntime, last
+from  .find    import find, fntime, last, store
 from ..object  import Object, ident, update, write
 from ..runtime import Cache, Repeater, launch, spl
 from  .utils   import laps, format
@@ -109,7 +109,7 @@ class Fetcher(Object):
                 result.append(fed)
             setattr(self.seen, feed.rss, urls)
             if not self.seenfn:
-                self.seenfn = ident(self.seen)
+                self.seenfn = store(ident(self.seen))
             write(self.seen, self.seenfn)
         if silent:
             return counter
