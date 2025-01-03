@@ -16,8 +16,8 @@ import time
 import _thread
 
 
-from  .find    import ident, last
-from ..object  import Object, edit, keys, write
+from  .find    import last
+from ..object  import Object, edit, ident, keys, write
 from ..runtime import Cache, Commands, Event, Reactor
 from ..runtime import command, later, launch, spl
 from ..runtime import Config as Main

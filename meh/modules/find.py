@@ -5,7 +5,6 @@
 "locate objects"
 
 
-import datetime
 import os
 import time
 import _thread
@@ -14,7 +13,7 @@ import _thread
 p = os.path.join
 
 
-from ..object  import Config, Object, fqn, ident, items, lock, read, update
+from ..object  import Config, Object, fqn, items, lock, read, update
 from ..runtime import Cache
 
 
