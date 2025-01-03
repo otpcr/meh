@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+# This file is placed in the Public Domain
+
+
+"linted"
+
+
+import os
+import sys
+
+
+NAME = "meh"
+
+
+def popen(txt):
+    for line in os.popen(txt).readlines():
+        print(line.rstrip())
+        sys.stdout.flush()
+
+
+if os.path.exists("bin/clean"):
+    popen("bin/clean")
+
+
+popen(f"pylint {NAME}/*.py {NAME}/modules/*.py bin/tinder tests")

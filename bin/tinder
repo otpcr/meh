@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+# This file is placed in the Public Domain.
+# pylint: disable=C,R0903,W0105,W0201,W0212,W0613, W0718,E0401
+
+
+"tinder"
+
+
+import os
+import shutil
+import sys
+import termios
+import time
+import _thread
+
+
+sys.path.insert(0, os.getcwd())
+
+
+from meh.disk    import Config, skel
+from meh.find    import laps
+from meh.modules import face
+from meh.object  import Object
+from meh.runtime import Commands, Event, Reactor
+from meh.runtime import errors, later, launch, parse, scan
+
+
+Config.name = "tinder"
+Config.wdr = ".test"
+
+
+cfg = Config()
+cfg.index = 0
+
+
+LAP = 1
+NRS = 1
+NRCOMMAND = 1
+PERCALL   = 1
+STARTTIME = time.time()
+
+
+events = []
+paylock = _thread.allocate_lock()
+
+
+param = Object()
+param.cmd = [""]
+param.dne = ["mekker", ""]
+param.dpl = ["hnrss title,url", ""]
+param.exp = ['']
+param.fnd = ["log", "todo", "rss", "config", "urls", ""]
+param.imp = ["tests/feeds.opml", ""]
+param.log = ["bla", ""]
+param.mod = [""]
+param.mre = [""]
+param.nme = ["hnrss hackernews", ""]
+param.pwd = ["bla mekker", ""]
+param.rem = ["hnrss", ""]
+param.res = [""]
+param.rss = ["http://hnrss.org/newest", ""]
+param.srv = [""]
+param.tdo = ["mekker", ""]
+param.ver = [""]
+
+
+class CLI(Reactor):
+
+    def dosay(self, channel, txt):
+        print(txt)
+
+    def raw(self, txt):
+        if "v" in cfg.opts:
+            print(txt)
+            sys.stdout.flush()
+
+    def wait(self):
+        pass
+
+
+def banner():
+    tme = time.ctime(time.time()).replace("  ", " ")
+    print(f"{Config.name.upper()} since {tme}")
+
+
+def consume(evts):
+    done = []
+    for evt in evts:
+        evt.wait()
+        done.append(evt)
+    for todo in done:
+        events.remove(todo)
+    return done
+
+
+def payload(clt):
+    nmr = 0
+    for cmdd in sorted(Commands.cmds):
+        for ex in getattr(param, cmdd, [""]):
+            evt = Event()
+            evt.txt = cmdd + " " + ex
+            evt.type = "command"
+            events.append(evt)
+            clt.put(evt)
+            nmr += 1
+    return nmr
+
+
+def wrap(function):
+    old3 = None
+    try:
+        old3 = termios.tcgetattr(sys.stdin.fileno())
+    except termios.error:
+        pass
+    try:
+        function()
+    except (KeyboardInterrupt, EOFError):
+        pass
+    except Exception as ex:
+        later(ex)
+    finally:
+        if old3:
+            termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old3)
+
+
+def main():
+    Config.wdr = ".test"
+    parse(cfg, " ".join(sys.argv[1:]))
+    face.rss.DEBUG = True
+    scan(face)
+    nrcommands = len(Commands.cmds) or 1
+    if "v" in cfg.opts:
+        banner()
+    if "f" not in cfg.opts:
+        if os.path.exists(Config.wdr):
+            shutil.rmtree(Config.wdr)
+    skel()
+    clt = CLI()
+    clt.start()
+    nrs = cfg.index or 1
+    thrs = []
+    for _nr in range(nrs):
+        thrs.append(launch(payload, clt))
+    for thr in thrs:
+        thr.join()
+    consume(events)
+    clt.wait()
+    clt.stop()
+    endtime = time.time()
+    lap = laps(endtime-STARTTIME)
+    percall = (endtime-STARTTIME)/(nrs*nrcommands)
+    print(f"{lap} {nrs} {nrcommands} {percall}")
+    if not list(errors()):
+        print("no errors")
+
+
+if __name__ == "__main__":
+    wrap(main)
+    for line in errors():
+        print(line)
+    if events:
+        print(f"{len(events)} events remained")
+    sys.stdout.flush()
