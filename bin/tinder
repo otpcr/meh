@@ -17,10 +17,10 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from meh.modules import face
-from meh.object  import Object
-from meh.runtime import Client, Commands, Config, Event
+from meh.object  import Config, Object
+from meh.runtime import Client, Commands, Event
 from meh.runtime import errors, later, launch, parse, scan
+from meh.modules import face
 
 
 from meh.modules.utils import laps
@@ -146,8 +146,8 @@ def main():
     for thr in thrs:
         thr.join()
     consume(events)
-    clt.wait()
     clt.stop()
+    clt.wait()
     endtime = time.time()
     lap = laps(endtime-STARTTIME)
     percall = (endtime-STARTTIME)/(nrs*nrcommands)

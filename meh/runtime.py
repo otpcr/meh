@@ -223,11 +223,14 @@ class Reactor:
     def display(self, evt):
         for txt in evt.result:
             self.raw(txt)
+        evt.ready()
 
     def loop(self):
         while not self.stopped.is_set():
             try:
                 evt = self.poll()
+                if evt is None:
+                    break
                 if not self.stopped.is_set():
                     self.callback(evt)
             except (KeyboardInterrupt, EOFError):
@@ -253,6 +256,10 @@ class Reactor:
 
     def stop(self):
         self.stopped.set()
+        self.queue.put(None)
+
+    def wait(self):
+        self.stopped.wait()
 
 
 class Client(Reactor):
@@ -446,5 +453,6 @@ def __dir__():
         'errors',
         'later',
         'launch',
+        'parse',
         'scan'
     )

@@ -16,7 +16,8 @@ sys.path.insert(0, os.getcwd())
 
 
 from meh.modules import face
-from meh.runtime import Client, Commands, Config, Event
+from meh.object  import Config
+from meh.runtime import Client, Commands, Event
 from meh.runtime import command, errors, later, parse, scan
 
 

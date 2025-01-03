@@ -14,7 +14,7 @@ import _thread
 p = os.path.join
 
 
-from ..object  import Object, fqn, items, read, update
+from ..object  import Config, Object, fqn, ident, items, lock, read, update
 from ..runtime import Cache
 
 
@@ -23,18 +23,19 @@ findlock = _thread.allocate_lock()
 
 def fns(pth):
     dname = ''
-    with findlock:
+    with lock:
         for rootdir, dirs, _files in os.walk(pth, topdown=False):
             if dirs:
                 for dname in sorted(dirs):
                     if dname.count('-') == 2:
                         ddd = p(rootdir, dname)
                         for fll in os.scandir(ddd):
-                            yield strip(p(ddd, fll))
+                            yield p(ddd, fll)
 
 
-def find(pth, selector=None, index=None, deleted=False, matching=False):
+def find(clz, selector=None, index=None, deleted=False, matching=False):
     nrs = -1
+    pth = store(long(clz))
     with findlock:
         for fnm in sorted(fns(pth), key=fntime):
             obj = Cache.get(fnm)
@@ -67,11 +68,6 @@ def fntime(daystr):
     return timed
 
 
-
-def ident(obj):
-    return p(fqn(obj), *str(datetime.datetime.now()).split())
-
-
 def last(obj, selector=None):
     if selector is None:
         selector = {}
@@ -84,6 +80,16 @@ def last(obj, selector=None):
         inp = result[-1]
         update(obj, inp[-1])
         res = inp[0]
+    return res
+
+
+def long(name):
+    split = name.split(".")[-1].lower()
+    res = name
+    for names in types():
+        if split == names.split(".")[-1].lower():
+            res = names
+            break
     return res
 
 
@@ -105,5 +111,13 @@ def search(obj, selector, matching=None):
     return res
 
 
+def store(pth=""):
+    return p(Config.wdr, "store", pth)
+
+
 def strip(pth, nmr=3):
     return os.sep.join(pth.split(os.sep)[-nmr:])
+
+
+def types():
+    return os.listdir(store())
