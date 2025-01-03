@@ -16,7 +16,7 @@ sys.path.insert(0, os.getcwd())
 
 
 from meh.modules import face
-from meh.runtime import Commands, Config, Event, Reactor
+from meh.runtime import Client, Commands, Config, Event
 from meh.runtime import command, errors, later, parse, scan
 
 
@@ -41,7 +41,7 @@ WantedBy=multi-user.target"""
 cfg = Config()
 
 
-class CLI(Reactor):
+class CLI(Client):
 
     def raw(self, txt):
         print(txt)
@@ -55,6 +55,8 @@ class Console(CLI):
     def callback(self, evt):
         CLI.callback(self, evt)
         evt.wait()
+        print(evt)
+        self.display(evt)
 
     def poll(self):
         evt = Event()
@@ -93,6 +95,7 @@ def console():
     if "v" in cfg.opts:
         banner()
     for mod, thr in scan(face, init="i" in cfg.opts, disable=cfg.sets.dis):
+        print(mod)
         if "v" in cfg.opts and "output" in dir(mod):
             mod.output = print
         if thr and "w" in cfg.opts:

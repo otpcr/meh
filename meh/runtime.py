@@ -35,6 +35,7 @@ class Commands:
 
 
 def command(bot, evt):
+    parse(evt, evt.txt)
     if "ident" in dir(bot):
         evt.orig = bot.ident
     func = Commands.cmds.get(evt.cmd, None)
@@ -224,6 +225,13 @@ class Reactor:
         self.stopped.set()
 
 
+class Client(Reactor):
+
+    def __init__(self):
+        Reactor.__init__(self)
+        self.register("command", command)
+
+
 "threads"
 
 
@@ -390,6 +398,7 @@ def parse(obj, txt=None):
 
 def __dir__():
     return (
+        'Client',
         'Commands',
         'Config',
         'Default',
