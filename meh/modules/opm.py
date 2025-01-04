@@ -10,7 +10,7 @@ import uuid
 import _thread
 
 
-from  .find    import find
+from ..find    import find
 from ..object  import Object, update, write
 from  .rss     import Rss
 from ..runtime import spl

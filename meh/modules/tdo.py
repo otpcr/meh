@@ -8,9 +8,8 @@
 import time
 
 
-from  .find   import find, fntime
+from ..find   import find, fntime, laps
 from ..object import Object, write
-from  .utils  import laps
 
 
 class Todo(Object):

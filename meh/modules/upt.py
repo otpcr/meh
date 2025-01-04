@@ -8,7 +8,7 @@
 import time
 
 
-from .utils import laps
+from ..find import laps
 
 
 STARTTIME = time.time()

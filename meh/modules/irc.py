@@ -16,12 +16,11 @@ import time
 import _thread
 
 
-from  .find    import last
+from ..find    import format, last
 from ..object  import Object, edit, ident, keys, write
 from ..runtime import Cache, Commands, Event, Reactor
 from ..runtime import command, later, launch, spl
 from ..runtime import Config as Main
-from  .utils   import format
 
 
 IGNORE = ["PING", "PONG", "PRIVMSG"]
