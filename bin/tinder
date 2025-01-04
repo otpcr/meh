@@ -17,14 +17,11 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from meh.object  import Config, Object
+from meh.find    import Config, laps, skel
+from meh.modules import face
+from meh.object  import Object
 from meh.runtime import Client, Commands, Event
 from meh.runtime import errors, later, launch, parse, scan
-from meh.modules import face
-
-
-from meh.modules.utils import laps
-from meh.modules.fnd   import skel
 
 
 Config.name = "tinder"
@@ -68,16 +65,11 @@ param.ver = [""]
 
 class CLI(Client):
 
-    def dosay(self, channel, txt):
-        print(txt)
 
     def raw(self, txt):
         if "v" in cfg.opts:
             print(txt)
             sys.stdout.flush()
-
-    def wait(self):
-        pass
 
 
 def banner():
@@ -133,6 +125,7 @@ def main():
     nrcommands = len(Commands.cmds) or 1
     if "v" in cfg.opts:
         banner()
+        print("verbose is on")
     if "f" not in cfg.opts:
         if os.path.exists(Config.wdr):
             shutil.rmtree(Config.wdr)

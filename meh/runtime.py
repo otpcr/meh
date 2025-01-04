@@ -68,13 +68,12 @@ def command(bot, evt):
     if "ident" in dir(bot):
         evt.orig = bot.ident
     func = Commands.cmds.get(evt.cmd, None)
-    if not func:
-        evt.ready()
-        return
-    try:
-        func(evt)
-    except Exception as ex:
-        later(ex)
+    if func:
+        try:
+            func(evt)
+        except Exception as ex:
+            later(ex)
+    bot.display(evt)
     evt.ready()
 
 
@@ -198,6 +197,48 @@ class Event:
             self._thr.join()
 
 
+"output"
+
+
+class Output:
+
+    cache = {}
+
+    def __init__(self):
+        self.oqueue = queue.Queue()
+
+    def display(self, evt):
+        for txt in evt.result:
+            self.oput(evt.channel, txt)
+
+    def dosay(self, channel, txt):
+        self.raw(txt)
+
+    def oput(self, channel, txt):
+        self.oqueue.put((channel, txt))
+
+    def output(self):
+        while True:
+            (channel, txt) = self.oqueue.get()
+            if channel is None and txt is None:
+                self.oqueue.task_done()
+                break
+            self.dosay(channel, txt)
+            self.oqueue.task_done()
+
+    def raw(self, txt):
+        raise NotImplementedError
+
+    def start(self):
+        launch(self.output)
+
+    def stop(self):
+        self.oqueue.put((None, None))
+
+    def wait(self):
+        self.oqueue.join()
+
+
 "reactor"
 
 
@@ -223,7 +264,6 @@ class Reactor:
     def display(self, evt):
         for txt in evt.result:
             self.raw(txt)
-        evt.ready()
 
     def loop(self):
         while not self.stopped.is_set():
@@ -262,14 +302,30 @@ class Reactor:
         self.stopped.wait()
 
 
-class Client(Reactor):
+"client"
+
+
+class Client(Output, Reactor):
 
     def __init__(self):
+        Output.__init__(self)
         Reactor.__init__(self)
         self.register("command", command)
 
     def raw(self, txt):
         raise NotImplementedError("raw")
+
+    def start(self):
+        Output.start(self)
+        Reactor.start(self)
+
+    def stop(self):
+        Reactor.stop(self)
+        Output.stop(self)
+
+    def wait(self):
+        Reactor.wait(self)
+        Output.wait(self)
 
 
 "threads"

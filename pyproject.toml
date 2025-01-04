@@ -7,9 +7,9 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "obz"
-description = "program your own commands"
-version = "7"
+name = "meh"
+description = "mekker"
+version = "1"
 authors = [
     {name = "Bart Thate", email = "bthate@dds.nl"},
 ]
@@ -24,17 +24,17 @@ classifiers = [
 ]
 
 
+[project.scripts]
+"meh" = "meh.__main__:wrapped"
+
 [project.urls]
-"home" = "https://pypi.org/project/obz"
-"bugs" = "https://github.com/otpcr/obz/issues"
-"source" = "https://github.com/otpcr/obz"
+"home" = "https://pypi.org/project/meh"
+"bugs" = "https://github.com/otpcr/meh/issues"
+"source" = "https://github.com/otpcr/meh"
 
 
 [tool.setuptools]
-script-files = [
-    'bin/obz',
-]
 packages = [
-    "obz",
-    "obz.modules"
+    "meh",
+    "meh.modules"
 ]

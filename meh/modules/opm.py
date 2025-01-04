@@ -10,8 +10,8 @@ import uuid
 import _thread
 
 
-from ..find    import find
-from ..object  import Object, update, write
+from ..find    import find, write
+from ..object  import Object, update
 from  .rss     import Rss
 from ..runtime import spl
 

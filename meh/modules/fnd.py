@@ -10,8 +10,7 @@ import pathlib
 import time
 
 
-from ..find   import find, fntime, format, laps
-from ..object import Config
+from ..find import Config, find, fntime, format, laps
 
 
 p = os.path.join

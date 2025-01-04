@@ -5,78 +5,13 @@
 "a clean namespace"
 
 
-import datetime
 import json
-import os
-import pathlib
-import _thread
-
-
-lock      = _thread.allocate_lock()
-cachelock = _thread.allocate_lock()
-findlock  = _thread.allocate_lock()
-p         = os.path.join
-
-
-"cache"
-
-
-class Cache:
-
-    objs = {}
-
-    @staticmethod
-    def add(path, obj):
-        with cachelock:
-            Cache.objs[path] = obj
-
-    @staticmethod
-    def get(path):
-        with cachelock:
-            return Cache.objs.get(path)
-
-    @staticmethod
-    def typed(matcher):
-        with cachelock:
-            for key in Cache.objs:
-                if matcher not in key:
-                    continue
-                yield Cache.objs.get(key)
-
-
-"config"
-
-
-class Config:
-
-    wdr = ""
-
-    def __contains__(self, key):
-        return key in dir(self)
-
-    def __getattr__(self, key):
-        return self.__dict__.get(key, "")
-
-    def __iter__(self):
-        return iter(self.__dict__)
-
-    def __len__(self):
-        return len(self.__dict__)
-
-    def __str__(self):
-        return str(self.__dict__)
-
-
-"object"
 
 
 class Object:
 
     def __str__(self):
         return str(self.__dict__)
-
-
-"decoder"
 
 
 class Decoder(json.JSONDecoder):
@@ -104,9 +39,6 @@ def loads(string, *args, **kw):
     kw["cls"] = Decoder
     kw["object_hook"] = hook
     return json.loads(string, *args, **kw)
-
-
-"encoder"
 
 
 class Encoder(json.JSONEncoder):
@@ -139,9 +71,6 @@ class Encoder(json.JSONEncoder):
 def dumps(*args, **kw):
     kw["cls"] = Encoder
     return json.dumps(*args, **kw)
-
-
-"methods"
 
 
 def construct(obj, *args, **kwargs):
@@ -212,39 +141,6 @@ def update(obj, data):
 
 def values(obj):
     return obj.__dict__.values()
-
-
-"disk"
-
-
-def cdir(pth):
-    path = pathlib.Path(pth)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-
-def read(obj, pth):
-    with lock:
-        with open(pth, 'r', encoding='utf-8') as ofile:
-            try:
-                obj2 = loads(ofile.read())
-                update(obj, obj2)
-            except json.decoder.JSONDecodeError as ex:
-                raise Exception(pth) from ex
-        return os.sep.join(pth.split(os.sep)[-3:])
-
-
-def write(obj, pth=None):
-    with lock:
-        if pth is None:
-            pth = p(Config.wdr, "store", ident(obj))
-        cdir(pth)
-        txt = dumps(obj, indent=4)
-        with open(pth, 'w', encoding='utf-8') as ofile:
-            ofile.write(txt)
-        return pth
-
-
-"interface"
 
 
 def __dir__():
