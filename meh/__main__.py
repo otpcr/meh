@@ -22,20 +22,6 @@ Config.name = Config.__module__.split(".", maxsplit=2)[-2]
 Config.wdr  = os.path.expanduser(f"~/.{Config.name}")
 
 
-TXT = """[Unit]
-Description=%s
-After=network-online.target
-
-[Service]
-Type=simple
-User=%s
-Group=%s
-ExecStart=/home/%s/.local/bin/%s -s
-
-[Install]
-WantedBy=multi-user.target"""
-
-
 cfg = Config()
 p   = os.path.join
 
@@ -112,8 +98,9 @@ def control():
     evt.txt = cfg.otxt
     csl = CLI()
     command(csl, evt)
-    csl.display(evt)
     evt.wait()
+    for txt in evt.result:
+        print(txt)
 
 
 def daemon(verbose=False):
@@ -215,6 +202,20 @@ def main():
         wrap(service)
     else:
         control()
+
+
+TXT = """[Unit]
+Description=%s
+After=network-online.target
+
+[Service]
+Type=simple
+User=%s
+Group=%s
+ExecStart=/home/%s/.local/bin/%s -s
+
+[Install]
+WantedBy=multi-user.target"""
 
 
 if __name__ == "__main__":
