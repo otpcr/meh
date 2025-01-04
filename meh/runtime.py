@@ -206,6 +206,7 @@ class Output:
 
     def __init__(self):
         self.oqueue = queue.Queue()
+        self.dostop = threading.Event()
 
     def display(self, evt):
         for txt in evt.result:
@@ -218,7 +219,7 @@ class Output:
         self.oqueue.put((channel, txt))
 
     def output(self):
-        while True:
+        while not self.dostop.is_set():
             (channel, txt) = self.oqueue.get()
             if channel is None and txt is None:
                 self.oqueue.task_done()
@@ -233,9 +234,11 @@ class Output:
         launch(self.output)
 
     def stop(self):
+        self.dostop.set()
         self.oqueue.put((None, None))
 
     def wait(self):
+        self.dostop.wait()
         self.oqueue.join()
 
 

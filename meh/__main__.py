@@ -54,7 +54,6 @@ class Console(CLI):
     def callback(self, evt):
         CLI.callback(self, evt)
         evt.wait()
-        self.display(evt)
 
     def poll(self):
         evt = Event()
